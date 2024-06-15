@@ -13,11 +13,10 @@ function isValidTimezone(tz: string): boolean {
 
 export default function Command() {
   const [timezone, setTimezone] = useState("");
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    ensureTimezonesFileExists().catch((error) => {
-      setError("Failed to ensure timezones.json exists.");
+    ensureTimezonesFileExists().catch(() => {
+      showToast(Toast.Style.Failure, "Failed to ensure timezones.json exists.");
     });
   }, []);
 
@@ -37,8 +36,8 @@ export default function Command() {
       timezones.push(timezone);
       await saveTimezones(timezones);
       showToast(Toast.Style.Success, "Timezone added");
-    } catch (error) {
-      setError("Failed to add timezone. Please try again later.");
+    } catch {
+      showToast(Toast.Style.Failure, "Failed to add timezone. Please try again later.");
     }
   };
 
@@ -46,10 +45,7 @@ export default function Command() {
     <Form
       actions={
         <ActionPanel>
-          <Action.SubmitForm
-            title="Add Timezone"
-            onSubmit={handleAddTimezone}
-          />
+          <Action.SubmitForm title="Add Timezone" onSubmit={handleAddTimezone} />
         </ActionPanel>
       }
     >

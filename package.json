@@ -4,7 +4,7 @@
   "title": "Timezones",
   "description": "Display and convert between timezones.",
   "icon": "command-icon.png",
-  "author": "Dom_Chester",
+  "author": "dom_chester",
   "license": "MIT",
   "commands": [
     {
@@ -20,7 +20,6 @@
       "mode": "view"
     }
   ],
-  "tools": null,
   "dependencies": {
     "@raycast/api": "^1.76.0"
   },

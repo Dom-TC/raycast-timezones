@@ -7,7 +7,7 @@ function formatTimezoneName(timezone: string): string {
   const city = parts[parts.length - 1].replace(/_/g, " ");
   return city
     .split(" ")
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
 }
 
@@ -19,7 +19,7 @@ export default function Command() {
   const [searchQuery, setSearchQuery] = useState("");
   const [adjustedTime, setAdjustedTime] = useState<Date | null>(null);
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
-  
+
   // Ensure timezones.json exists, and read the data from it.
   useEffect(() => {
     async function loadTimezones() {
@@ -41,7 +41,7 @@ export default function Command() {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000); // Run every 60 seconds (1000 ms * 60)
-  
+
     return () => clearInterval(interval);
   }, []);
 
@@ -126,11 +126,15 @@ export default function Command() {
   const sortedTimezones = sortTimezones(timezones);
 
   return (
-    <List searchBarPlaceholder="Set time..." searchText={searchQuery} onSearchTextChange={handleSearch} filtering={false}>
-      {sortedTimezones .map((timezone) => {
+    <List
+      searchBarPlaceholder="Set time..."
+      searchText={searchQuery}
+      onSearchTextChange={handleSearch}
+      filtering={false}
+    >
+      {sortedTimezones.map((timezone) => {
         const formattedCity = formatTimezoneName(timezone);
         const adjustedTime = calculateAdjustedTime(timezone);
-        const time = new Date().toLocaleString("en-US", { timeZone: timezone });
         return (
           <List.Item
             key={timezone}
@@ -140,14 +144,10 @@ export default function Command() {
               <ActionPanel>
                 <ActionPanel.Section>
                   <Action.CopyToClipboard content={adjustedTime} />
-                  <Action
-                    title="Clear Adjusted Time"
-                    icon={Icon.Xmark}
-                    onAction={clearAdjustedTime}
-                  />
+                  <Action title="Clear Adjusted Time" icon={Icon.Xmark} onAction={clearAdjustedTime} />
                 </ActionPanel.Section>
                 <ActionPanel.Section>
-                  <ActionPanel.Submenu title="Set sort order" icon={Icon.Shuffle}>
+                  <ActionPanel.Submenu title="Set Sort Order" icon={Icon.Shuffle}>
                     <Action
                       title="Alphabetical"
                       shortcut={{ modifiers: ["cmd"], key: "1" }}
