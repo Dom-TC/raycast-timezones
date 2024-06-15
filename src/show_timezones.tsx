@@ -16,7 +16,11 @@ export default function Command() {
   const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState<"alphabetical" | "chronological" | "manual">("chronological");
   const [error, setError] = useState<string | null>(null);
-
+  const [searchQuery, setSearchQuery] = useState("");
+  const [adjustedTime, setAdjustedTime] = useState<Date | null>(null);
+  const [currentTime, setCurrentTime] = useState<Date>(new Date());
+  
+  // Ensure timezones.json exists, and read the data from it.
   useEffect(() => {
     async function loadTimezones() {
       try {
@@ -31,6 +35,50 @@ export default function Command() {
     }
     loadTimezones();
   }, []);
+
+  // Update the current time every second
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000); // Run every 60 seconds (1000 ms * 60)
+  
+    return () => clearInterval(interval);
+  }, []);
+
+  const parseInputTime = (input: string): Date | null => {
+    // Assume input is in HH:mm format
+    const regex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+    if (regex.test(input)) {
+      const [hours, minutes] = input.split(":").map(Number);
+      const adjustedTime = new Date();
+      adjustedTime.setHours(hours);
+      adjustedTime.setMinutes(minutes);
+      return adjustedTime;
+    }
+    return null;
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+
+    const parsedTime = parseInputTime(query);
+    if (parsedTime) {
+      setAdjustedTime(parsedTime);
+    } else {
+      setAdjustedTime(null);
+    }
+  };
+
+  const calculateAdjustedTime = (timezone: string): string => {
+    const timeToDisplay = adjustedTime || currentTime; // Use adjusted time if set, otherwise use current time
+    const formattedTime = timeToDisplay.toLocaleTimeString("en-GB", { timeZone: timezone });
+    return formattedTime;
+  };
+
+  const clearAdjustedTime = () => {
+    setAdjustedTime(null);
+    setSearchQuery("");
+  };
 
   const sortTimezones = (tzs: string[]): string[] => {
     switch (sortOrder) {
@@ -78,41 +126,51 @@ export default function Command() {
   const sortedTimezones = sortTimezones(timezones);
 
   return (
-    <List>
-      {sortedTimezones.map((timezone) => {
+    <List searchBarPlaceholder="Set time..." searchText={searchQuery} onSearchTextChange={handleSearch} filtering={false}>
+      {sortedTimezones .map((timezone) => {
         const formattedCity = formatTimezoneName(timezone);
+        const adjustedTime = calculateAdjustedTime(timezone);
         const time = new Date().toLocaleString("en-US", { timeZone: timezone });
         return (
           <List.Item
             key={timezone}
             title={formattedCity}
-            subtitle={time}
+            subtitle={adjustedTime}
             actions={
               <ActionPanel>
-                <Action.CopyToClipboard content={time} />
-                <ActionPanel.Submenu title="Set sort order" icon={Icon.Shuffle}>
+                <ActionPanel.Section>
+                  <Action.CopyToClipboard content={adjustedTime} />
                   <Action
-                    title="Alphabetical"
-                    shortcut={{ modifiers: ["cmd"], key: "1" }}
-                    onAction={() => handleSortChange("alphabetical")}
+                    title="Clear Adjusted Time"
+                    icon={Icon.Xmark}
+                    onAction={clearAdjustedTime}
                   />
+                </ActionPanel.Section>
+                <ActionPanel.Section>
+                  <ActionPanel.Submenu title="Set sort order" icon={Icon.Shuffle}>
+                    <Action
+                      title="Alphabetical"
+                      shortcut={{ modifiers: ["cmd"], key: "1" }}
+                      onAction={() => handleSortChange("alphabetical")}
+                    />
+                    <Action
+                      title="Chronological"
+                      shortcut={{ modifiers: ["cmd"], key: "2" }}
+                      onAction={() => handleSortChange("chronological")}
+                    />
+                    <Action
+                      title="Manual"
+                      shortcut={{ modifiers: ["cmd"], key: "3" }}
+                      onAction={() => handleSortChange("manual")}
+                    />
+                  </ActionPanel.Submenu>
                   <Action
-                    title="Chronological"
-                    shortcut={{ modifiers: ["cmd"], key: "2" }}
-                    onAction={() => handleSortChange("chronological")}
+                    title="Remove Timezone"
+                    style={Action.Style.Destructive}
+                    icon={Icon.Trash}
+                    onAction={() => handleRemoveTimezone(timezone)}
                   />
-                  <Action
-                    title="Manual"
-                    shortcut={{ modifiers: ["cmd"], key: "3" }}
-                    onAction={() => handleSortChange("manual")}
-                  />
-                </ActionPanel.Submenu>
-                <Action
-                  title="Remove Timezone"
-                  style={Action.Style.Destructive}
-                  icon={Icon.Trash}
-                  onAction={() => handleRemoveTimezone(timezone)}
-                />
+                </ActionPanel.Section>
               </ActionPanel>
             }
           />
