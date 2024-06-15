@@ -53,7 +53,6 @@ export default function Command() {
         </ActionPanel>
       }
     >
-      {error && <Form.ErrorMessage>{error}</Form.ErrorMessage>}
       <Form.TextField
         id="timezone"
         title="Timezone"
