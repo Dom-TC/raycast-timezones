@@ -2,18 +2,13 @@ import { Action, ActionPanel, Icon, List, Toast, showToast } from "@raycast/api"
 import { useEffect, useState } from "react";
 import { ensureTimezonesFileExists, readTimezones, saveTimezones } from "./helper";
 
-function formatTimezone(timezone: string): string {
+function formatTimezoneName(timezone: string): string {
   const parts = timezone.split("/");
   const city = parts[parts.length - 1].replace(/_/g, " ");
   return city
     .split(" ")
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(" ");
-}
-
-function extractCityName(timezone: string): string {
-  const parts = timezone.split("/");
-  return parts[parts.length - 1].replace(/_/g, " ");
 }
 
 export default function Command() {
@@ -35,8 +30,8 @@ export default function Command() {
     switch (sortOrder) {
       case "alphabetical":
         return tzs.slice().sort((a, b) => {
-          const cityA = extractCityName(a);
-          const cityB = extractCityName(b);
+          const cityA = formatTimezoneName(a);
+          const cityB = formatTimezoneName(b);
           return cityA.localeCompare(cityB);
         });
       case "chronological":
@@ -71,7 +66,7 @@ export default function Command() {
   return (
     <List>
       {sortedTimezones.map((timezone) => {
-        const formattedCity = formatTimezone(timezone);
+        const formattedCity = formatTimezoneName(timezone);
         const time = new Date().toLocaleString("en-US", { timeZone: timezone });
         return (
           <List.Item
