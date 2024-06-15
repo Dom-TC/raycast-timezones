@@ -18,12 +18,6 @@
       "title": "Add Timezone",
       "description": "Add a timezone.",
       "mode": "view"
-    },
-    {
-      "name": "remove_timezone",
-      "title": "Remove Timezone",
-      "description": "Remove a timezone.",
-      "mode": "view"
     }
   ],
   "tools": null,
