@@ -91,22 +91,22 @@ export default function Command() {
               <ActionPanel>
                 <Action.CopyToClipboard content={time} />
                 <ActionPanel.Submenu title="Set sort order" icon={Icon.Shuffle}>
-                <Action
-                  title="Alphabetical"
-                  shortcut={{ modifiers: ["cmd"], key: "1" }}
-                  onAction={() => handleSortChange("alphabetical")}
-                />
-                <Action
-                  title="Chronological"
-                  shortcut={{ modifiers: ["cmd"], key: "2" }}
-                  onAction={() => handleSortChange("chronological")}
-                />
-                <Action
-                  title="Manual"
-                  shortcut={{ modifiers: ["cmd"], key: "3" }}
-                  onAction={() => handleSortChange("manual")}
-                />
-              </ActionPanel.Submenu>
+                  <Action
+                    title="Alphabetical"
+                    shortcut={{ modifiers: ["cmd"], key: "1" }}
+                    onAction={() => handleSortChange("alphabetical")}
+                  />
+                  <Action
+                    title="Chronological"
+                    shortcut={{ modifiers: ["cmd"], key: "2" }}
+                    onAction={() => handleSortChange("chronological")}
+                  />
+                  <Action
+                    title="Manual"
+                    shortcut={{ modifiers: ["cmd"], key: "3" }}
+                    onAction={() => handleSortChange("manual")}
+                  />
+                </ActionPanel.Submenu>
                 <Action
                   title="Remove Timezone"
                   style={Action.Style.Destructive}
