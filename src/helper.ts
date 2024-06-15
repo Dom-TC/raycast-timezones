@@ -15,18 +15,23 @@ export async function ensureTimezonesFileExists() {
   }
 }
 
-
 // Read the current timezones from TIMEZONES_FILE
 export async function readTimezones() {
   try {
     const data = await fs.readFile(TIMEZONES_FILE, "utf-8");
     return JSON.parse(data);
   } catch (error) {
-    return [];
+    console.error("Failed to read timezones:", error);
+    throw new Error("Failed to read timezones. Please try again later.");
   }
 }
 
 // Save the current timezones into TIMEZONES_FILE
-export async function saveTimezones(timezone: string[]) {
-  await fs.writeFile(TIMEZONES_FILE, JSON.stringify(timezone), "utf-8");
+export async function saveTimezones(timezones: string[]) {
+  try {
+    await fs.writeFile(TIMEZONES_FILE, JSON.stringify(timezones), "utf-8");
+  } catch (error) {
+    console.error("Failed to save timezones:", error);
+    throw new Error("Failed to save timezones. Please try again later.");
+  }
 }

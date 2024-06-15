@@ -15,13 +15,19 @@ export default function Command() {
   const [timezones, setTimezones] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOrder, setSortOrder] = useState<"alphabetical" | "chronological" | "manual">("chronological");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadTimezones() {
-      await ensureTimezonesFileExists();
-      const tzs = await readTimezones();
-      setTimezones(tzs);
-      setLoading(false);
+      try {
+        await ensureTimezonesFileExists();
+        const tzs = await readTimezones();
+        setTimezones(tzs);
+        setLoading(false);
+      } catch (error) {
+        setError("Failed to load timezones. Please try again later.");
+        setLoading(false);
+      }
     }
     loadTimezones();
   }, []);
@@ -46,19 +52,27 @@ export default function Command() {
     }
   };
 
-  const handleSortChange = (order: "alphabetical" | "chronological" | "manual") => {
+  const handleSortChange = async (order: "alphabetical" | "chronological" | "manual") => {
     setSortOrder(order);
   };
 
   const handleRemoveTimezone = async (timezone: string) => {
-    const newTimezones = timezones.filter((tz) => tz !== timezone);
-    setTimezones(newTimezones);
-    await saveTimezones(newTimezones);
-    showToast(Toast.Style.Success, "Timezone removed");
+    try {
+      const newTimezones = timezones.filter((tz) => tz !== timezone);
+      setTimezones(newTimezones);
+      await saveTimezones(newTimezones);
+      showToast(Toast.Style.Success, "Timezone removed");
+    } catch (error) {
+      setError("Failed to remove timezone. Please try again later.");
+    }
   };
 
   if (loading) {
     return <List isLoading={true} />;
+  }
+
+  if (error) {
+    return <List searchBarPlaceholder={error} isLoading={false} />;
   }
 
   const sortedTimezones = sortTimezones(timezones);

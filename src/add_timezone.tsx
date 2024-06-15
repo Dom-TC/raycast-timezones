@@ -11,13 +11,36 @@ function isValidTimezone(tz: string): boolean {
   }
 }
 
-
 export default function Command() {
   const [timezone, setTimezone] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    ensureTimezonesFileExists();
+    ensureTimezonesFileExists().catch((error) => {
+      setError("Failed to ensure timezones.json exists.");
+    });
   }, []);
+
+  const handleAddTimezone = async () => {
+    try {
+      if (!isValidTimezone(timezone)) {
+        showToast(Toast.Style.Failure, "Invalid timezone");
+        return;
+      }
+
+      const timezones = await readTimezones();
+      if (timezones.includes(timezone)) {
+        showToast(Toast.Style.Failure, "Timezone already exists");
+        return;
+      }
+
+      timezones.push(timezone);
+      await saveTimezones(timezones);
+      showToast(Toast.Style.Success, "Timezone added");
+    } catch (error) {
+      setError("Failed to add timezone. Please try again later.");
+    }
+  };
 
   return (
     <Form
@@ -25,25 +48,12 @@ export default function Command() {
         <ActionPanel>
           <Action.SubmitForm
             title="Add Timezone"
-            onSubmit={async () => {
-              if (!isValidTimezone(timezone)) {
-                showToast(Toast.Style.Failure, "Invalid timezone");
-                return;
-              }
-
-              const timezones = await readTimezones();
-              if (timezones.includes(timezone)) {
-                showToast(Toast.Style.Failure, "Timezone already exists");
-                return;
-              }
-              timezones.push(timezone);
-              await saveTimezones(timezones);
-              showToast(Toast.Style.Success, "Timezone added");
-            }}
+            onSubmit={handleAddTimezone}
           />
         </ActionPanel>
       }
     >
+      {error && <Form.ErrorMessage>{error}</Form.ErrorMessage>}
       <Form.TextField
         id="timezone"
         title="Timezone"
